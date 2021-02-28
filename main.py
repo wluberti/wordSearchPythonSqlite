@@ -5,7 +5,7 @@ from database import DatabaseManager
 import unidecode
 import json
 import os
-from flask import Flask, request, send_file, redirect, url_for, render_template
+from flask import Flask, request, redirect, url_for, render_template
 
 app = Flask(__name__)
 app.db = DatabaseManager('words.db')
@@ -21,7 +21,6 @@ def main(**args):
 def favicon():
     return redirect(url_for('static', filename='favicon.ico'))
 
-
 @app.route("/prepare", methods=["GET"])
 def prepare():
     if app.db.check_database(app.logger) and app.db.count_words() < 100:
@@ -31,7 +30,7 @@ def prepare():
     else:
         status = 'Database already prepared.'
 
-    return render_template('test.html', status = status)
+    return render_template('index.html', status = status)
 
 @app.route("/check", methods=["GET"])
 def check():
@@ -43,18 +42,34 @@ def check():
     except Exception as e:
         app.logger.error(f'Error: {e}')
 
-    return render_template('test.html', status = status)
+    return render_template('index.html', status = status)
 
 @app.route("/close", methods=["GET"])
 def close():
-    status = []
     try:
         app.db.close_connection()
-        status.append('ok')
+        status = 'ok'
     except Exception as e:
-        status.append(f'Error: {e}')
+        app.logger.error(f'Error: {e}')
 
-    return render_template('test.html', status = status)
+    return render_template('index.html', status = status)
+
+@app.route("/word/", methods=["GET", "POST"])
+def search():
+    searchString = request.form['textinput']
+    # sql = f"SELECT word FROM words WHERE word LIKE '%{searchString}%' ORDER BY 1"
+    sql = f"SELECT word FROM words WHERE word LIKE '%{searchString}%' ORDER BY LENGTH(word), word"
+
+    app.db.check_database(app.logger)
+    resultset = app.db.execute(sql)
+
+    results = []
+    for result in resultset:
+        tmp = result[0].replace(searchString, f"<b><u>{searchString}</u></b>")
+        results.append(tmp)
+    app.logger.info(sql)
+
+    return render_template('index.html', results = results, value = searchString)
 
 def populate_database():
     with open(app.dictionary) as wl:

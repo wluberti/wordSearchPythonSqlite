@@ -11,10 +11,10 @@ class DatabaseManager:
         self.conn = None
 
     def check_database(self, log):
-        log.info(self.conn)
+        # log.info(self.conn)
         if self.conn == None:
             try:
-                self.conn = sqlite3.connect(self.db_name, uri=True)
+                self.conn = sqlite3.connect(self.db_name, uri=True, check_same_thread=False)
                 log.info(f'Succesfully connected to {self.db_name} database.')
 
                 if self.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='words';") != 'words':
@@ -27,7 +27,7 @@ class DatabaseManager:
             finally:
                 return False
 
-        log.info(self.count_words())
+        # log.info(self.count_words())
         return True
 
     def count_words(self):

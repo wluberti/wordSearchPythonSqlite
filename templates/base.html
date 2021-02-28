@@ -3,6 +3,7 @@
 <head>
     {% block head %}
     <link rel="stylesheet" href="/static/bootstrap.css" />
+    <link rel="stylesheet" href="/static/styles.css" />
     <title>{% block title %}{% endblock %} - pySqlite</title>
     {% endblock %}
 </head>
@@ -13,7 +14,7 @@
         <div style="margin-top: 50px;"></div>
         <div><a href="/prepare"><button type="button" class="btn btn-outline-primary">Prepare DB</button></a></div>
         <div><a href="/check"><button type="button" class="btn btn-outline-info">Check</button></a></div>
-        <div><a href="/close"><button type="button" class="btn btn-outline-danger">Close DB</button></a></div>
+        <!-- <div><a href="/close"><button type="button" class="btn btn-outline-danger">Close DB</button></a></div> -->
         <div style="margin-top: 50px;"></div>
         &copy; Copyright 2021 by <a href="http://localhost/">Localhost</a>.
         {% endblock %}
