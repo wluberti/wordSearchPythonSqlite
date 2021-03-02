@@ -58,14 +58,14 @@ def close():
 def search():
     searchString = request.form['textinput']
     # sql = f"SELECT word FROM words WHERE word LIKE '%{searchString}%' ORDER BY 1"
-    sql = f"SELECT word FROM words WHERE word LIKE '%{searchString}%' ORDER BY LENGTH(word), word"
+    sql = f"SELECT word FROM words WHERE word LIKE '{searchString}' ORDER BY LENGTH(word), word"
 
     app.db.check_database(app.logger)
     resultset = app.db.execute(sql)
 
     results = []
     for result in resultset:
-        tmp = result[0].replace(searchString, f"<b><u>{searchString}</u></b>")
+        tmp = result[0].replace(searchString, f"{searchString}")
         results.append(tmp)
     app.logger.info(sql)
 
@@ -79,10 +79,13 @@ def populate_database():
             # Remove any special characters
             word = unidecode.unidecode(word).strip()
 
+            # Hack for plural words ending with _'s_
+            if "'s" in word: word.replace("'s", "s")
+
             # Skip all words that are not allowed in Scrabble
             if ' ' in word: continue
             if '-' in word: continue
-            if '\'' in word: continue
+            if "'" in word: continue
             if any(l.isupper() for l in word): continue
             if any(l.isdigit() for l in word): continue
 

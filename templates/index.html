@@ -16,7 +16,7 @@
 <hr style="margin: 20px 10px;">
 {% if results %}
     {% for word in results %}
-        <div class="status">{% autoescape false %}{{ word }}{% endautoescape %}</div>
+        <div class="status"><a href="https://www.encyclo.nl/begrip/{{ word }}" target="_blank">{% autoescape false %}{{ word|replace(value, "<b><u>" + value + "</u></b>") }}{% endautoescape %}</a></div>
     {% endfor %}
 {% endif %}
 
