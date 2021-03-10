@@ -14,10 +14,27 @@
   </fieldset>
 </form>
 <hr style="margin: 20px 10px;">
-{% if results %}
-    {% for word in results %}
-        <div class="status"><a href="https://www.encyclo.nl/begrip/{{ word }}" target="_blank">{% autoescape false %}{{ word|replace(value, "<b><u>" + value + "</u></b>") }}{% endautoescape %}</a></div>
+{% if value %}
+<table>
+  <tr>
+    <td style="width: 50%; vertical-align: top;">
+    {% for word in regexResult %}
+        <div class="status">
+          <a href="https://www.encyclo.nl/begrip/{{ word }}" target="_blank">
+            {% autoescape false %}{{ word|replace(value, "<b><u>" + value + "</u></b>") }}{% endautoescape %}
+          </a>
+        </div>
     {% endfor %}
+    </td>
+    <td style="width: 50%; vertical-align: top;">
+      <div class="status">
+      {% for word in charResult %}
+          <a href="https://www.encyclo.nl/begrip/{{ word }}" target="_blank">{{ word[0] }}</a> ({{ word[1] }})
+      {% endfor %}
+      </div>
+    </td>
+  </tr>
+</table>
 {% endif %}
 
 

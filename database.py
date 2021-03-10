@@ -18,7 +18,7 @@ class DatabaseManager:
                 log.info(f'Succesfully connected to {self.db_name} database.')
 
                 if self.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='words';") != 'words':
-                    self.execute("CREATE TABLE IF NOT EXISTS words (word TEXT PRIMARY KEY)")
+                    self.execute("CREATE TABLE words (word TEXT PRIMARY KEY, points INTEGER)")
                     log.info(f'Created "words" table because it did not exist.')
 
             except sqlite3.OperationalError as err:
@@ -31,7 +31,7 @@ class DatabaseManager:
         return True
 
     def count_words(self):
-        return self.execute("SELECT COUNT(*) FROM words")[0][0]
+        return self.execute("SELECT COUNT(word) FROM words")[0][0]
 
     def close_connection(self):
         if self.conn is not None:

@@ -2,9 +2,11 @@
 # https://tutorial-academy.com/uwsgi-nginx-flask-python-sqlite-docker-example/
 
 from database import DatabaseManager
+from generateSql import generateSql, determineValue
 import unidecode
 import json
 import os
+import re
 from flask import Flask, request, redirect, url_for, render_template
 
 app = Flask(__name__)
@@ -16,10 +18,6 @@ app.dictionary = 'wordlist.txt'
 @app.route("/")
 def main(**args):
     return render_template('index.html', args = args)
-
-@app.route('/favicon.ico')
-def favicon():
-    return redirect(url_for('static', filename='favicon.ico'))
 
 @app.route("/prepare", methods=["GET"])
 def prepare():
@@ -44,20 +42,21 @@ def check():
 
     return render_template('index.html', status = status)
 
-@app.route("/close", methods=["GET"])
-def close():
-    try:
-        app.db.close_connection()
-        status = 'ok'
-    except Exception as e:
-        app.logger.error(f'Error: {e}')
-
-    return render_template('index.html', status = status)
-
 @app.route("/word/", methods=["GET", "POST"])
 def search():
-    searchString = request.form['textinput']
-    # sql = f"SELECT word FROM words WHERE word LIKE '%{searchString}%' ORDER BY 1"
+    searchString = request.form['textinput'].lower()
+
+    regexResult = searchRegex(searchString)
+    charResult = searchChars(searchString)
+
+    return render_template(
+        'index.html',
+        regexResult = regexResult,
+        charResult = charResult,
+        value = searchString
+    )
+
+def searchRegex(searchString):
     sql = f"SELECT word FROM words WHERE word LIKE '{searchString}' ORDER BY LENGTH(word), word"
 
     app.db.check_database(app.logger)
@@ -67,38 +66,45 @@ def search():
     for result in resultset:
         tmp = result[0].replace(searchString, f"{searchString}")
         results.append(tmp)
-    app.logger.info(sql)
+    # app.logger.info(sql)
+    # app.logger.info(results)
 
-    return render_template('index.html', results = results, value = searchString)
+    return results
+
+def searchChars(searchString):
+    chars = re.findall('[a-z]', searchString)
+
+    likeClause = "%' OR word LIKE '%".join(chars)
+    # likeClause = "%' AND word LIKE '%".join(chars)
+    sql = f"""
+            SELECT word
+            FROM words
+            WHERE word LIKE '%{likeClause}%'
+              AND LENGTH(word) > 1
+              AND LENGTH(word) < 10
+            ORDER BY LENGTH(word) ASC, points DESC, word ASC
+            LIMIT 250
+    """
+
+    app.db.check_database(app.logger)
+    resultset = app.db.execute(sql)
+
+    results = []
+    for result in resultset:
+        tmp = result[0].replace(searchString, f"{searchString}")
+        results.append(determineValue(tmp))
+
+    # app.logger.info(sql)
+    # app.logger.info(results)
+
+    return results
 
 def populate_database():
-    with open(app.dictionary) as wl:
-        wordset = set() # Use use to create a unique list
-        data = wl.readlines()
-        for word in data:
-            # Remove any special characters
-            word = unidecode.unidecode(word).strip()
-
-            # Hack for plural words ending with _'s_
-            if "'s" in word: word.replace("'s", "s")
-
-            # Skip all words that are not allowed in Scrabble
-            if ' ' in word: continue
-            if '-' in word: continue
-            if "'" in word: continue
-            if any(l.isupper() for l in word): continue
-            if any(l.isdigit() for l in word): continue
-
-            # Add word to set
-            wordset.add(word)
-
-    words = "'), ('".join(wordset)
-    sql = f"INSERT OR IGNORE INTO words VALUES ('{words}')"
+    sql = generateSql(app.dictionary)
 
     status = []
     try:
         status.append(app.db.execute(sql))
-        # status = 'ok'
     except Exception as e:
         status.append(f'Error: {e}')
 
