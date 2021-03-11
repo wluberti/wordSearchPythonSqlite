@@ -24,6 +24,9 @@ def generateSql(dictionaryFile):
             # Skip words longer then the boards width
             if len(word) > BOARD_WIDTH: continue
 
+            # Skip single letter words
+            if len(word) <= 1: continue
+
             # Skip all words that are not allowed in Scrabble
             if ' ' in word: continue
             if '.' in word: continue
@@ -33,19 +36,20 @@ def generateSql(dictionaryFile):
             if any(letter.isupper() for letter in word): continue
             if any(letter.isdigit() for letter in word): continue
 
-            # Add word to set
-            word, value = determineValue(word)
-            if word != None:
-                wordset.add((word, value))
+            if determineValue(word) != None:
+                wordset.add(word)
 
-    sql = "INSERT INTO words (word, points) VALUES "
-    for word, value in wordset:
-        sql += f'("{word}", {value}), '
-    sql = sql.rstrip(', ')
+    preparedWords = "'), ('".join(wordset)
+    sql = f"INSERT INTO words (word) VALUES ('{preparedWords}')"
 
     return sql
 
 def determineValue(word):
+    """
+        Returns an Interger value of all the letters in {word}.
+        Will return 0 if a word cannot be made with all letters available
+    """
+
     letterValues = {
         'a': {'value': 1, 'amount': 7},
         'b': {'value': 4, 'amount': 2},
@@ -81,11 +85,11 @@ def determineValue(word):
     for letter in word:
         # Ignore words containing more letters than possible
         if count[letter] > letterValues[letter]['amount']:
-            return (None, 0)
+            return None
 
         value += letterValues[letter]['value']
 
-    return (word, value)
+    return (value)
 
 if __name__ == "__main__":
     dictionaryFile = 'wordlist.txt'
