@@ -44,60 +44,65 @@ def check():
 
 @app.route("/word/", methods=["GET", "POST"])
 def search():
-    searchString = request.form['textinput'].lower()
+    # Prepare result dictionary
+    result = list()
 
-    regexResult = searchRegex(searchString)
-    charResult = searchChars(searchString)
+    # Get input from form in /templates/index.html
+    textinput = request.form['textinput'].lower()
+
+    # Search the database
+    for word in searchDatabase(textinput):
+        # Return all the matching letters between {textinput} and {word}
+        matchingLetters = checkInputAgainstDatabase(textinput, word)
+
+        # app.logger.info(word)
+        for letter in word:
+            if letter not in matchingLetters:
+                break
+
+        # Populate the result
+        result.append((word, determineValue(matchingLetters)))
+
+    app.logger.info(result)
 
     return render_template(
         'index.html',
-        regexResult = regexResult,
-        charResult = charResult,
-        value = searchString
+        result = result,
+        value = textinput
     )
 
-def searchRegex(searchString):
-    sql = f"SELECT word FROM words WHERE word LIKE '{searchString}' ORDER BY LENGTH(word), word"
+def searchDatabase(textinput):
+    """
+        Returns a set (unique list) of ALL words containing ANY of the characters in {textinput}
+    """
+    chars = re.findall('[a-z]', textinput)
 
-    app.db.check_database(app.logger)
-    resultset = app.db.execute(sql)
-
-    results = []
-    for result in resultset:
-        tmp = result[0].replace(searchString, f"{searchString}")
-        results.append(tmp)
-    # app.logger.info(sql)
-    # app.logger.info(results)
-
-    return results
-
-def searchChars(searchString):
-    chars = re.findall('[a-z]', searchString)
-
-    likeClause = "%' OR word LIKE '%".join(chars)
-    # likeClause = "%' AND word LIKE '%".join(chars)
+    likeClause = "%' OR word LIKE '%".join(set(chars))
     sql = f"""
-            SELECT word
+            SELECT DISTINCT word
             FROM words
-            WHERE word LIKE '%{likeClause}%'
-              AND LENGTH(word) > 1
-              AND LENGTH(word) < 10
-            ORDER BY LENGTH(word) ASC, points DESC, word ASC
-            LIMIT 250
+            WHERE LENGTH(word) <= {len(textinput)}
+              AND (word LIKE '%{likeClause}%')
+            ORDER BY LENGTH(word) DESC
     """
 
     app.db.check_database(app.logger)
-    resultset = app.db.execute(sql)
+    unfilteredWordList = app.db.execute(sql)
 
-    results = []
-    for result in resultset:
-        tmp = result[0].replace(searchString, f"{searchString}")
-        results.append(determineValue(tmp))
-
-    # app.logger.info(sql)
-    # app.logger.info(results)
+    results = [word[0] for word in unfilteredWordList if checkInputAgainstDatabase(textinput, word[0]) != None]
 
     return results
+
+def checkInputAgainstDatabase(textinput, databaseword):
+    textinput = list(textinput)
+    for letter in databaseword:
+        if letter not in textinput:
+            return None
+        else:
+            textinput.remove(letter)
+
+    return databaseword
+
 
 def populate_database():
     sql = generateSql(app.dictionary)

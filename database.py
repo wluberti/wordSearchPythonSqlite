@@ -18,7 +18,7 @@ class DatabaseManager:
                 log.info(f'Succesfully connected to {self.db_name} database.')
 
                 if self.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='words';") != 'words':
-                    self.execute("CREATE TABLE words (word TEXT PRIMARY KEY, points INTEGER)")
+                    self.execute("CREATE TABLE words (word TEXT PRIMARY KEY)")
                     log.info(f'Created "words" table because it did not exist.')
 
             except sqlite3.OperationalError as err:

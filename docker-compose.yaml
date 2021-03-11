@@ -12,4 +12,4 @@ services:
             - FLASK_APP=main.py
             - FLASK_DEBUG=1
             - STATIC_INDEX=1
-        command: bash -c  "apt update && apt install sqlite3-pcre && /usr/local/bin/pip install unidecode && flask run --host=0.0.0.0 --port=80"
+        command: bash -c  "/usr/local/bin/pip install unidecode && flask run --host=0.0.0.0 --port=80"
