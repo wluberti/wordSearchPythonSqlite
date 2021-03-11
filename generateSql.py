@@ -3,6 +3,8 @@
 import unidecode
 from collections import Counter
 
+BOARD_WIDTH = 17
+
 def generateSql(dictionaryFile):
     """
         Generates the SQL needed to populate database.
@@ -13,11 +15,14 @@ def generateSql(dictionaryFile):
     with open(dictionaryFile) as dictionary:
         data = dictionary.readlines()
         for word in data:
-            # Remove any special characters and spaces
+            # Remove any special characters and spaces before and after word
             word = unidecode.unidecode(word).strip()
 
             # Hack for plural words ending with _'s
-            if "'s" in word: word.replace("'s", "s")
+            if word.endswith("'s"): word.replace("'s", "s")
+
+            # Skip words longer then the boards width
+            if len(word) > BOARD_WIDTH: continue
 
             # Skip all words that are not allowed in Scrabble
             if ' ' in word: continue

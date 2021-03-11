@@ -2,3 +2,7 @@ div.status {
   margin-left: 50px;
   font-size: 1.4em;
 }
+
+div.pagetitle {
+  font-size: 300%;
+}
