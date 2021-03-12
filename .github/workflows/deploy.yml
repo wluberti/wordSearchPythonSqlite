@@ -30,4 +30,5 @@ jobs:
             source venv/bin/activate
             pip install --upgrade pip
             pip install --upgrade setuptools
-            pip install wheel uwsgi flask
+            pip install wheel
+            pip install uwsgi flask
