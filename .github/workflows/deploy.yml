@@ -1,0 +1,28 @@
+name: "Deploy to server"
+
+on:
+  push:
+    branches: [ newdb ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out master
+        uses: actions/checkout@v2
+
+      - name: Deploying to server
+        env:
+          remote_host: ${{ secrets.REMOTE_HOST }}
+          remote_user: ${{ secrets.REMOTE_USER }}
+          remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          remote_dir: ${{ secrets.REMOTE_TARGET }}
+          local_dir: "."
+        run: |
+            rm -rf .git*
+            mkdir ~/.ssh
+            echo "$remote_key" > ~/.ssh/id_github
+            chmod 600 ~/.ssh/id_github
+            rsync -avzr --delete -e "ssh -i ~/.ssh/id_github -o StrictHostKeyChecking=no" ${local_dir} ${remote_user}@${remote_host}:${remote_dir} --filter='P venv/' --filter='P words.db'
+            rm ~/.ssh/id_github

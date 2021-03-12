@@ -19,6 +19,10 @@ app.dictionary = 'wordlist.txt'
 def main(**args):
     return render_template('index.html', args = args)
 
+@app.route("/about")
+def about(**args):
+    return render_template('about.html', args = args)
+
 @app.route("/prepare", methods=["GET"])
 def prepare():
     if app.db.check_database(app.logger) and app.db.count_words() < 100:
@@ -63,7 +67,7 @@ def search():
         # Populate the result
         result.append((word, determineValue(matchingLetters)))
 
-    app.logger.info(result)
+    # app.logger.info(result)
 
     return render_template(
         'index.html',
