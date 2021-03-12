@@ -26,4 +26,4 @@ jobs:
             chmod 600 ~/.ssh/id_github
             rsync -avzr --delete -e "ssh -i ~/.ssh/id_github -o StrictHostKeyChecking=no" ${local_dir} ${remote_user}@${remote_host}:${remote_dir} --filter='P venv/' --filter='P words.db'
             rm ~/.ssh/id_github
-            sudo systemctl restart word.whazza.nl.service
+            ./post_deploy.sh
