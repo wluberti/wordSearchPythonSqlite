@@ -63,7 +63,7 @@ def search():
         # Populate the result
         result.append((word, determineValue(matchingLetters)))
 
-    app.logger.info(result)
+    # app.logger.info(result)
 
     return render_template(
         'index.html',
