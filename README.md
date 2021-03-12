@@ -121,3 +121,9 @@ sudo vim /etc/ferm/ferm.conf
 sudo systemctl restart ferm
 sudo certbot --nginx -d YOUR_DOMAIN_NAME
 ```
+
+### Automaticaly restart service after deploy
+`sudo visudo -f /etc/sudoers.d/restart_service`
+```
+USER HOST = (root) NOPASSWD: /bin/systemctl restart YOUR_SERVICE_NAME.service
+```

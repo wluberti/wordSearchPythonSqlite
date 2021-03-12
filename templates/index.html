@@ -7,7 +7,7 @@
   <fieldset>
     <div class="form-group">
       <label for="textinput">Zoeken:</label>
-      <input type="text" class="form-control" id="textinput" name="textinput" aria-describedby="textHelp" {% if value %}value="{{ value }}"{% else %}placeholder="Enter letters"{% endif %}>
+      <input type="text" class="form-control" id="textinput" name="textinput" aria-describedby="textHelp" {% if value %}value="{{ value }}"{% else %}placeholder="Enter letters"{% endif %} autocomplete="off">
       <!-- <small id="textHelp" class="form-text text-muted">Enter letter(s) or part of a word</small> -->
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
