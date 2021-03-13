@@ -18,25 +18,30 @@ app.dictionary = 'wordlist.txt'
 @app.route("/", methods=["GET", "POST"])
 def search():
     if request.form:
-        # Prepare result dictionary
+        numberOfBlancos = 0
         result = list()
 
         # Get input from form in /templates/index.html
-        letterinput = request.form['letterinput'].lower()
-        wordinput = request.form['wordinput'].lower()
+        letterinput = request.form['letterinput'].lower().strip()
+        wordinput = request.form['wordinput'].lower().strip()
+
+        # Check letterinput for blanco's (any non alph character)
+        for letter in letterinput:
+            if not letter.isalpha():
+                numberOfBlancos += 1
 
         # Search the database
-        for word in searchDatabase(letterinput, wordinput):
-            # Return all the matching letters between {letterinput} and {word}
-            matchingLetters = checkInputAgainstDatabase(letterinput, wordinput, word)
+        for databaseword in searchDatabase(letterinput, wordinput, numberOfBlancos):
+            # Return all the matching letters between {letterinput} and {databaseword}
+            matchingLetters = checkInputAgainstDatabase(letterinput, wordinput, databaseword, numberOfBlancos)
 
             # app.logger.info(word)
-            for letter in word:
+            for letter in databaseword:
                 if letter not in matchingLetters:
                     break
 
             # Populate the result
-            result.append((word, determineValue(matchingLetters)))
+            result.append((databaseword, determineValue(matchingLetters)))
 
         # app.logger.info(result)
 
@@ -49,14 +54,18 @@ def search():
 
     return render_template('index.html')
 
-def searchDatabase(letterinput, wordinput = ''):
+def searchDatabase(letterinput, wordinput = '', numberOfBlancos = 0):
     """
         Returns a set (unique list) of ALL words containing ANY of the characters in {letterinput}
         If {wordinput} is set it will check the presence of that word before adding to the set
     """
-    chars = re.findall('[a-z]', letterinput)
+    chars = set(re.findall('[a-z]', letterinput))
 
-    likeClause = "%' OR word LIKE '%".join(set(chars))
+    if numberOfBlancos > 0:
+        chars.add('_')
+
+    app.logger.info(numberOfBlancos)
+    likeClause = "%' OR word LIKE '%".join(chars)
     if wordinput != '':
         wordClause = f"AND word LIKE '%{wordinput}%'"
     else:
@@ -75,19 +84,22 @@ def searchDatabase(letterinput, wordinput = ''):
     unfilteredWordList = app.db.execute(sql)
 
     results = [word[0] for word in unfilteredWordList if \
-                checkInputAgainstDatabase(letterinput, wordinput, word[0]) != None]
+                checkInputAgainstDatabase(letterinput, wordinput, word[0], numberOfBlancos) != None]
 
     return results
 
-def checkInputAgainstDatabase(letterinput, wordinput, databaseword):
+def checkInputAgainstDatabase(letterinput, wordinput, databaseword, numberOfBlancos):
     letterinput = list(letterinput) + list(wordinput)
 
     if wordinput not in databaseword:
         return None
 
     for letter in databaseword:
-        if letter not in letterinput:
+        if letter not in letterinput and numberOfBlancos == 0:
             return None
+        elif numberOfBlancos > 0:
+            numberOfBlancos -= 1
+            continue
         else:
             letterinput.remove(letter)
 
