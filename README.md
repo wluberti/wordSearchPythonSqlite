@@ -9,6 +9,13 @@
 Loosly based on https://www.digitalocean.com/community/tutorials/how-to-serve-flask-applications-with-uwsgi-and-nginx-on-ubuntu-20-04
 
 ### Webserver (when not using Docker)
+If you want to use this code and deploy it through [Github Actions](https://github.com/features/actions), please make sure you configure the parts relevant to your use case.
+
+* `REMOTE_HOST` - SSH host that will run the Nginx, Python and UWSGI code
+* `REMOTE_USER` - SSH username to log in to REMOTE_HOST
+* `SSH_PRIVATE_KEY` - SSH private key relevant to REMOTE_USER. (Note: use PEM format)
+* `REMOTE_TARGET` - Target directory to put the code in on REMOTE_HOST
+
 ```
 sudo apt update && sudo apt dist-upgrade
 sudo apt install python3-pip python3-dev build-essential libssl-dev libffi-dev python3-setuptools python3-venv nginx python3-certbot-nginx
