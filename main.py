@@ -15,67 +15,39 @@ app.db = DatabaseManager('words.db')
 app.dictionary = 'wordlist.txt'
 
 
-@app.route("/")
-def main():
-    return render_template('index.html')
-
-@app.route("/about")
-def about():
-    return render_template('about.html')
-
-@app.route("/prepare", methods=["GET"])
-def prepare():
-    if app.db.check_database(app.logger) and app.db.count_words() < 100:
-        populate_database()
-        app.logger.info('Populated database.')
-        status = 'Populated database.'
-    else:
-        status = 'Database already prepared.'
-
-    return render_template('index.html', status = status)
-
-@app.route("/check", methods=["GET"])
-def check():
-    status = ''
-    try:
-        if app.db.check_database(app.logger):
-            numberOfWords = app.db.count_words()
-            status = f'Found {numberOfWords} records.'
-    except Exception as e:
-        app.logger.error(f'Error: {e}')
-
-    return render_template('index.html', status = status)
-
-@app.route("/word/", methods=["GET", "POST"])
+@app.route("/", methods=["GET", "POST"])
 def search():
-    # Prepare result dictionary
-    result = list()
+    if request.form:
+        # Prepare result dictionary
+        result = list()
 
-    # Get input from form in /templates/index.html
-    letterinput = request.form['letterinput'].lower()
-    wordinput = request.form['wordinput'].lower()
+        # Get input from form in /templates/index.html
+        letterinput = request.form['letterinput'].lower()
+        wordinput = request.form['wordinput'].lower()
 
-    # Search the database
-    for word in searchDatabase(letterinput, wordinput):
-        # Return all the matching letters between {letterinput} and {word}
-        matchingLetters = checkInputAgainstDatabase(letterinput, wordinput, word)
+        # Search the database
+        for word in searchDatabase(letterinput, wordinput):
+            # Return all the matching letters between {letterinput} and {word}
+            matchingLetters = checkInputAgainstDatabase(letterinput, wordinput, word)
 
-        # app.logger.info(word)
-        for letter in word:
-            if letter not in matchingLetters:
-                break
+            # app.logger.info(word)
+            for letter in word:
+                if letter not in matchingLetters:
+                    break
 
-        # Populate the result
-        result.append((word, determineValue(matchingLetters)))
+            # Populate the result
+            result.append((word, determineValue(matchingLetters)))
 
-    # app.logger.info(result)
+        # app.logger.info(result)
 
-    return render_template(
-        'index.html',
-        result = result,
-        lettervalue = letterinput,
-        wordvalue = wordinput,
-    )
+        return render_template(
+            'index.html',
+            result = result,
+            lettervalue = letterinput,
+            wordvalue = wordinput,
+        )
+
+    return render_template('index.html')
 
 def searchDatabase(letterinput, wordinput = ''):
     """
@@ -132,6 +104,33 @@ def populate_database():
         status.append(f'Error: {e}')
 
     return status
+
+@app.route("/about")
+def about():
+    return render_template('about.html')
+
+@app.route("/prepare", methods=["GET"])
+def prepare():
+    if app.db.check_database(app.logger) and app.db.count_words() < 100:
+        populate_database()
+        app.logger.info('Populated database.')
+        status = 'Populated database.'
+    else:
+        status = 'Database already prepared.'
+
+    return render_template('index.html', status = status)
+
+@app.route("/check", methods=["GET"])
+def check():
+    status = ''
+    try:
+        if app.db.check_database(app.logger):
+            numberOfWords = app.db.count_words()
+            status = f'Found {numberOfWords} records.'
+    except Exception as e:
+        app.logger.error(f'Error: {e}')
+
+    return render_template('index.html', status = status)
 
 
 if __name__ == "__main__":
