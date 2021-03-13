@@ -25,6 +25,6 @@ jobs:
             echo "$remote_key" > ~/.ssh/id_github
             chmod 600 ~/.ssh/id_github
             ssh -i ~/.ssh/id_github -o StrictHostKeyChecking=no ${remote_user}@${remote_host} "sudo systemctl restart word.whazza.nl.service &""
-            rsync -avzr --delete -e "ssh -i ~/.ssh/id_github -o StrictHostKeyChecking=no" ${local_dir} ${remote_user}@${remote_host}:${remote_dir} --filter='P venv/' --filter='P words.db'
+            rsync -avzr --delete -e "ssh -i ~/.ssh/id_github -o StrictHostKeyChecking=no" ${local_dir} ${remote_user}@${remote_host}:${remote_dir} --filter='P venv/' --filter='P words.db'"
 
             rm ~/.ssh/id_github
