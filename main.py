@@ -26,14 +26,14 @@ def search():
         letterinput = request.form['letterinput'].lower().strip()
         wordinput = request.form['wordinput'].lower().strip()
 
-        # Check letterinput for blanco's (any non alpha character)
+        # Check input for blanco's (any non alpha character)
         for letter in letterinput:
             if not letter.isalpha():
                 numberOfBlancos += 1
 
         # Search the database
         for databaseword in searchDatabase(letterinput, wordinput, numberOfBlancos):
-            matchingLetters = checkInputAgainstDatabase(letterinput, wordinput, databaseword, numberOfBlancos)
+            matchingLetters = checkInputAgainstDatabaseWords(letterinput, wordinput, databaseword, numberOfBlancos)
 
             for letter in databaseword:
                 if letter not in matchingLetters:
@@ -60,44 +60,46 @@ def searchDatabase(letterinput, wordinput = '', numberOfBlancos = 0):
     if numberOfBlancos > 0:
         chars.add('_')
 
-    app.logger.info(numberOfBlancos)
     likeClause = "%' OR word LIKE '%".join(chars)
     if wordinput != '':
-        wordClause = f"AND word LIKE '%{wordinput}%'"
+        wordinputForSql = re.sub(r'[^a-z]', '_', wordinput)
+        wordClause = f"AND word LIKE '%{wordinputForSql}%'"
     else:
         wordClause = ''
 
     sql = f"""
-            SELECT DISTINCT word
-            FROM words
-            WHERE LENGTH(word) <= {len(letterinput) + len(wordinput)}
-              {wordClause}
-              AND (word LIKE '%{likeClause}%')
-            ORDER BY LENGTH(word) DESC
+        SELECT DISTINCT word
+        FROM words
+        WHERE LENGTH(word) <= {len(letterinput) + len(wordinput)}
+            {wordClause}
+            AND (word LIKE '%{likeClause}%')
+        ORDER BY LENGTH(word) DESC
     """
 
     app.db.check_database(app.logger)
     unfilteredWordList = app.db.execute(sql)
 
     results = [word[0] for word in unfilteredWordList if \
-                checkInputAgainstDatabase(letterinput, wordinput, word[0], numberOfBlancos) != None]
+                checkInputAgainstDatabaseWords(letterinput, wordinput, word[0], numberOfBlancos) != None]
 
     return results
 
-def checkInputAgainstDatabase(letterinput, wordinput, databaseword, numberOfBlancos):
-    letterinput = list(letterinput) + list(wordinput)
+def checkInputAgainstDatabaseWords(letterinput, wordinput, databaseword, numberOfBlancos):
+    combinedletters = list(letterinput) + list(wordinput)
 
-    if wordinput not in databaseword:
+    pattern = re.sub(r'[^a-z]', '.', wordinput)
+    match = re.search(f'{pattern}', databaseword)
+    if match.string not in databaseword:
         return None
 
     for letter in databaseword:
-        if letter not in letterinput and numberOfBlancos == 0:
+        if letter not in combinedletters and numberOfBlancos == 0:
             return None
         elif numberOfBlancos > 0:
             numberOfBlancos -= 1
             continue
         else:
-            letterinput.remove(letter)
+            combinedletters.remove(letter)
 
     return databaseword
 
