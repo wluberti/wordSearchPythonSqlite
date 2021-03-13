@@ -6,19 +6,22 @@
 <form method="POST" action="/word/">
   <fieldset>
     <div class="form-group">
-      <label for="textinput">Zoeken:</label>
-      <input type="text" class="form-control" id="textinput" name="textinput" aria-describedby="textHelp" {% if value %}value="{{ value }}"{% else %}placeholder="Enter letters"{% endif %} autocomplete="off">
-      <!-- <small id="textHelp" class="form-text text-muted">Enter letter(s) or part of a word</small> -->
+      <label for="letterinput">Zoeken:</label>
+      <input type="search" class="form-control" id="letterinput" name="letterinput" {% if lettervalue %}value="{{ lettervalue }}"{% else %}placeholder="Enter letters"{% endif %} autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label for="wordinput">Moet passen op (deel van) woord:</label>
+      <input type="search" class="form-control" id="wordinput" name="wordinput" {% if wordvalue %}value="{{ wordvalue }}"{% else %}placeholder="Enter (part of) word"{% endif %} autocomplete="off">
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
   </fieldset>
 </form>
 <hr style="margin: 20px 10px;">
-{% if value %}
+{% if lettervalue %}
 {% for word, score in result %}
     <div class="status">
       <a href="https://www.encyclo.nl/begrip/{{ word }}" target="_blank">
-        {% autoescape false %}{{ word|replace(value, "<b><u>" + value + "</u></b>") }}{% endautoescape %}
+        {% autoescape false %}{{ word|replace(lettervalue, "<b><u>" + lettervalue + "</u></b>") }}{% endautoescape %}
       </a> ({{ score }})
     </div>
 

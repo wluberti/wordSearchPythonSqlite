@@ -16,12 +16,12 @@ app.dictionary = 'wordlist.txt'
 
 
 @app.route("/")
-def main(**args):
-    return render_template('index.html', args = args)
+def main():
+    return render_template('index.html')
 
 @app.route("/about")
-def about(**args):
-    return render_template('about.html', args = args)
+def about():
+    return render_template('about.html')
 
 @app.route("/prepare", methods=["GET"])
 def prepare():
@@ -52,12 +52,13 @@ def search():
     result = list()
 
     # Get input from form in /templates/index.html
-    textinput = request.form['textinput'].lower()
+    letterinput = request.form['letterinput'].lower()
+    wordinput = request.form['wordinput'].lower()
 
     # Search the database
-    for word in searchDatabase(textinput):
-        # Return all the matching letters between {textinput} and {word}
-        matchingLetters = checkInputAgainstDatabase(textinput, word)
+    for word in searchDatabase(letterinput, wordinput):
+        # Return all the matching letters between {letterinput} and {word}
+        matchingLetters = checkInputAgainstDatabase(letterinput, wordinput, word)
 
         # app.logger.info(word)
         for letter in word:
@@ -72,20 +73,28 @@ def search():
     return render_template(
         'index.html',
         result = result,
-        value = textinput
+        lettervalue = letterinput,
+        wordvalue = wordinput,
     )
 
-def searchDatabase(textinput):
+def searchDatabase(letterinput, wordinput = ''):
     """
-        Returns a set (unique list) of ALL words containing ANY of the characters in {textinput}
+        Returns a set (unique list) of ALL words containing ANY of the characters in {letterinput}
+        If {wordinput} is set it will check the presence of that word before adding to the set
     """
-    chars = re.findall('[a-z]', textinput)
+    chars = re.findall('[a-z]', letterinput)
 
     likeClause = "%' OR word LIKE '%".join(set(chars))
+    if wordinput != '':
+        wordClause = f"AND word LIKE '%{wordinput}%'"
+    else:
+        wordClause = ''
+
     sql = f"""
             SELECT DISTINCT word
             FROM words
-            WHERE LENGTH(word) <= {len(textinput)}
+            WHERE LENGTH(word) <= {len(letterinput) + len(wordinput)}
+              {wordClause}
               AND (word LIKE '%{likeClause}%')
             ORDER BY LENGTH(word) DESC
     """
@@ -93,17 +102,22 @@ def searchDatabase(textinput):
     app.db.check_database(app.logger)
     unfilteredWordList = app.db.execute(sql)
 
-    results = [word[0] for word in unfilteredWordList if checkInputAgainstDatabase(textinput, word[0]) != None]
+    results = [word[0] for word in unfilteredWordList if \
+                checkInputAgainstDatabase(letterinput, wordinput, word[0]) != None]
 
     return results
 
-def checkInputAgainstDatabase(textinput, databaseword):
-    textinput = list(textinput)
+def checkInputAgainstDatabase(letterinput, wordinput, databaseword):
+    letterinput = list(letterinput) + list(wordinput)
+
+    if wordinput not in databaseword:
+        return None
+
     for letter in databaseword:
-        if letter not in textinput:
+        if letter not in letterinput:
             return None
         else:
-            textinput.remove(letter)
+            letterinput.remove(letter)
 
     return databaseword
 
