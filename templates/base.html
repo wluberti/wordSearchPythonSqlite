@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
     {% block head %}
-    <meta name="viewport" content="width=device-width, initial-scale=2.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/bootstrap.css" />
     <link rel="stylesheet" href="/static/styles.css" />
-    <title>{% block title %}{% endblock %} - pySqlite</title>
+    <title>Wordfinder - {% block title %}{% endblock %}</title>
     <link rel="shortcut icon" type="image/icon" href="/static/favicon.ico"/>
     {% endblock %}
 </head>
@@ -14,7 +14,7 @@
     <div id="footer">
         {% block footer %}
         <div style="margin-top: 250px;"></div>
-        &copy; Copyright 2021 by <a href="/about">Wouter Luberti</a>.
+        <a href="/about">About</a>.
         {% endblock %}
     </div>
 </body>
