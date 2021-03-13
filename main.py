@@ -17,33 +17,29 @@ app.dictionary = 'wordlist.txt'
 
 @app.route("/", methods=["GET", "POST"])
 def search():
+    # Check if the form is filled
     if request.form:
         numberOfBlancos = 0
         result = list()
 
-        # Get input from form in /templates/index.html
+        # Get input from form in /templates/index.html, lowelcase them and strip spaces
         letterinput = request.form['letterinput'].lower().strip()
         wordinput = request.form['wordinput'].lower().strip()
 
-        # Check letterinput for blanco's (any non alph character)
+        # Check letterinput for blanco's (any non alpha character)
         for letter in letterinput:
             if not letter.isalpha():
                 numberOfBlancos += 1
 
         # Search the database
         for databaseword in searchDatabase(letterinput, wordinput, numberOfBlancos):
-            # Return all the matching letters between {letterinput} and {databaseword}
             matchingLetters = checkInputAgainstDatabase(letterinput, wordinput, databaseword, numberOfBlancos)
 
-            # app.logger.info(word)
             for letter in databaseword:
                 if letter not in matchingLetters:
                     break
 
-            # Populate the result
             result.append((databaseword, determineValue(matchingLetters)))
-
-        # app.logger.info(result)
 
         return render_template(
             'index.html',
