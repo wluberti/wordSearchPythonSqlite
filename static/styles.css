@@ -18,13 +18,13 @@ tr:nth-child(even) {
 
 th {
   text-align: center;
-  font-size: 2em;
-  padding: 10px 20px;
+  font-size: 1.6em;
+  padding: 0px 5px;
 }
 
 td {
   font-size: 1.3em;
-  padding: 0px 10px;
+  padding: 0px 5px;
 }
 
 td.center {
