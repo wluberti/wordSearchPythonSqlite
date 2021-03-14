@@ -20,7 +20,7 @@
 {% if lettervalue %}
 <table id="resulttable">
   <th onclick="sortTable(0)">Woord</th>
-  <th onclick="sortTable(1)">Letter</th>
+  <th onclick="sortTable(1)">Letters</th>
   <th onclick="sortTable(2)">Waarde</th>
 {% for word, score in result|sort(attribute="score") %}
   {% if word != wordvalue %}
