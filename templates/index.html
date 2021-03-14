@@ -11,22 +11,30 @@
     </div>
     <div class="form-group">
       <label for="wordinput">Moet passen op (deel van) woord:</label>
-      <input type="search" class="form-control" id="wordinput" name="wordinput" {% if wordvalue %}value="{{ wordvalue }}"{% else %}placeholder="Enter (part of) word"{% endif %} autocomplete="off">
+      <input type="search" class="form-control" id="wordinput" name="wordinput" {% if wordvalue %}value="{{ wordvalue }}"{% else %}placeholder="Voer (een deel van) een woord in. Gebruik ? voor blanco."{% endif %} autocomplete="off">
     </div>
     <button type="submit" class="btn btn-primary">Submit</button>
   </fieldset>
 </form>
 <hr style="margin: 20px 10px;">
 {% if lettervalue %}
-{% for word, score in result %}
-    <div class="status">
-      <a href="https://www.encyclo.nl/begrip/{{ word }}" target="_blank">
+<table id="resulttable">
+  <th onclick="sortTable(0)">Woord</th>
+  <th onclick="sortTable(1)">Letters</th>
+  <th onclick="sortTable(2)">Waarde</th>
+{% for word, score in result|sort(attribute="score") %}
+  {% if word != wordvalue %}
+  <tr>
+    <td><a href="https://www.encyclo.nl/begrip/{{ word }}" target="_blank">
         {% autoescape false %}{{ word|replace(wordvalue, "<u>" + wordvalue + "</u>") }}{% endautoescape %}
-      </a> ({{ score }})
-    </div>
-
-
+    </a></td>
+    <td class="center">{{ word|length }}</td>
+    <td class="center">{{ score }}</td>
+  </tr>
+  {% endif %}
 {% endfor %}
+
+</table>
 {% endif %}
 
 
@@ -34,4 +42,5 @@
     <div class="status">{{ status }}</div>
 {% endif %}
 
+<script src="/static/tablesort.js"></script>
 {% endblock %}

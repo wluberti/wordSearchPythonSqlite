@@ -11,3 +11,22 @@ div.pagetitle {
   font-size: 300%;
   text-align: center;
 }
+
+tr:nth-child(even) {
+  background-color: #f8f8f8;
+}
+
+th {
+  text-align: center;
+  font-size: 2em;
+  padding: 10px 20px;
+}
+
+td {
+  font-size: 1.3em;
+  padding: 0px 10px;
+}
+
+td.center {
+  text-align: center;
+}
