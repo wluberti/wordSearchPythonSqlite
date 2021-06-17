@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}About{% endblock %}
+{% block content %}
+<div class="pagetitle"><a href="/">Wordfinder</a></div>
+
+<div style="margin-top: 50px;"></div>
+<div>
+    <h2>About</h2>
+    <p>
+        A small Scrabble / Wordfeud helper because I needed some project to improve my Python and Docker skills. The source code can be found on <a href="https://github.com/wluberti/wordSearchPythonSqlite">Github</a>
+    </p>
+</div>
+<div>
+    <h2>Legend</h2>
+    <table>
+        <tr>
+            <th>Character</th>
+            <th>Explanation</th>
+        </tr>
+        <tr>
+            <td>[a-zA-Z]</td>
+            <td>Any letter will be interperted as a normal letter / word character.</td>
+        </tr>
+        <tr>
+            <td>-</td>
+            <td>(Not yet implemented) A dash at the beginning or end will be interperted as the beginning or end of the word.</td>
+        </tr>
+        <tr>
+            <td>*</td>
+            <td>Any other character (including space) will be interperted as an 'blanco'.</td>
+        </tr>
+    </table>
+</div>
+
+<div>
+    <h2>Lazy</h2>
+    <p>Some buttons because I'm to lazy to type them into the URL after a dabase reload:</p>
+    <div>
+        <a href="/prepare"><button type="button" class="btn btn-outline-primary">Populate DB</button></a>
+        <a href="/check"><button type="button" class="btn btn-outline-info">Check</button></a>
+        <a href="/"><button type="button" class="btn btn-outline-success">Back</button></a>
+    </div>
+</div>
+
+{% if status %}
+    <div class="status">{{ status }}</div>
+{% endif %}
+
+{% endblock %}
+
+{% block footer %}{% endblock %}

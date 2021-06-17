@@ -3,7 +3,7 @@
 }
 
 div.status {
-  margin-left: 50px;
+  margin-top: 50px;
   font-size: 1.4em;
 }
 
@@ -29,4 +29,19 @@ td {
 
 td.center {
   text-align: center;
+}
+
+p {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-size: 1.2rem;
+    font-weight: 100;
+    line-height: 1.15;
+    color: #495057;
+    text-align: left;
+    margin-bottom: 2rem;
+}
+
+h2 {
+    margin-top: 2rem;
 }

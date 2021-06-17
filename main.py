@@ -115,9 +115,9 @@ def populate_database():
 
     return status
 
-@app.route("/about")
+@app.route("/info")
 def about():
-    return render_template('about.html')
+    return render_template('info.html')
 
 @app.route("/prepare", methods=["GET"])
 def prepare():
@@ -128,7 +128,7 @@ def prepare():
     else:
         status = 'Database already prepared.'
 
-    return render_template('index.html', status = status)
+    return render_template('info.html', status = status)
 
 @app.route("/check", methods=["GET"])
 def check():
@@ -136,11 +136,11 @@ def check():
     try:
         if app.db.check_database(app.logger):
             numberOfWords = app.db.count_words()
-            status = f'Found {numberOfWords} records.'
+            status = f'Found {numberOfWords} words.'
     except Exception as e:
         app.logger.error(f'Error: {e}')
 
-    return render_template('index.html', status = status)
+    return render_template('info.html', status = status)
 
 
 if __name__ == "__main__":
